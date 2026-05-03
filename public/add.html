@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Student</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar"><div class="logo"><h2>UniPortal</h2></div><div class="nav-links"><a href="/">Dashboard</a><a href="/view.html">Records</a></div></nav>
+    <div class="container" style="max-width: 450px;">
+        <h2 style="text-align:center; color: var(--primary);">Register Student</h2>
+        <form id="addForm">
+            <input type="text" id="name" placeholder="Full Name" class="styled-input" required>
+            <input type="text" id="regNo" placeholder="Registration Number" class="styled-input" required>
+            <button type="submit" class="btn-action">Add to Database</button>
+        </form>
+        <p id="msg" style="text-align:center; margin-top:15px; font-weight:600;"></p>
+    </div>
+    <script>
+        document.getElementById('addForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const res = await fetch('/add-student', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name: document.getElementById('name').value, regNo: document.getElementById('regNo').value })
+            });
+            const text = await res.text();
+            const msgEl = document.getElementById('msg');
+            msgEl.innerText = text;
+            msgEl.style.color = "#28a745";
+            e.target.reset();
+        };
+    </script>
+</body>
+</html>

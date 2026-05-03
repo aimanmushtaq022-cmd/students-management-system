@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Record - UniPortal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><h2>UniPortal</h2></div>
+        <div class="nav-links">
+            <a href="/">Dashboard</a>
+            <a href="/add.html">Add</a>
+            <a href="/update.html">Update</a>
+            <a href="/view.html">Records</a>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 450px;">
+        <h2 style="text-align:center; color: var(--primary);">Update Student Data</h2>
+        <p style="text-align:center; font-size: 0.85rem; color: #64748b; margin-bottom: 25px;">
+            Enter the <strong>Registration Number</strong> of the student you wish to rename.
+        </p>
+
+        <form id="upForm">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 600; font-size: 0.85rem; display: block; margin-bottom: 5px;">Registration Number</label>
+                <input type="text" id="regNo" placeholder="e.g., SP24-BCS-001" class="styled-input" required>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 600; font-size: 0.85rem; display: block; margin-bottom: 5px;">New Full Name</label>
+                <input type="text" id="newName" placeholder="Enter updated name" class="styled-input" required>
+            </div>
+
+            <button type="submit" class="btn-action">Save Changes</button>
+        </form>
+        
+        <p id="msg" style="text-align:center; margin-top:20px; font-weight:600; min-height: 1.5em;"></p>
+        
+        <div style="text-align:center; margin-top:10px;">
+            <a href="/view.html" class="secondary-link">Verify in Records →</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('upForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const msgEl = document.getElementById('msg');
+            msgEl.innerText = "Connecting to server...";
+            msgEl.style.color = "#64748b";
+
+            try {
+                const res = await fetch('/update-student', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        regNo: document.getElementById('regNo').value, 
+                        newName: document.getElementById('newName').value 
+                    })
+                });
+
+                const text = await res.text();
+                
+                if (res.ok) {
+                    msgEl.innerText = "✓ " + text;
+                    msgEl.style.color = "#2d5a27"; // Dark Green
+                    e.target.reset();
+                } else {
+                    msgEl.innerText = "✕ " + text;
+                    msgEl.style.color = "#ef4444"; // Error Red
+                }
+            } catch (err) {
+                msgEl.innerText = "✕ Server connection failed.";
+                msgEl.style.color = "#ef4444";
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Database - UniPortal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><h2>UniPortal</h2></div>
+        <div class="nav-links">
+            <a href="/">Dashboard</a>
+            <a href="/add.html">Add</a>
+            <a href="/update.html">Update</a>
+            <a href="/view.html">Records</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 id="viewTitle" style="text-align:center; color: var(--jade);">Registered Students</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Registration No</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="studentList"></tbody>
+        </table>
+
+        <!-- Added the missing button to prevent script errors -->
+        <div style="text-align:center; margin-top: 25px;">
+            <a href="/view.html" id="backBtn" class="btn-del" style="display:none; text-decoration:none; padding: 10px 20px;">
+                ← Show All Students
+            </a>
+        </div>
+    </div>
+
+    <script>
+        async function load() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const highlight = urlParams.get('highlight');
+
+            const res = await fetch('/students');
+            let data = await res.json();
+
+            const table = document.getElementById('studentList');
+            const title = document.getElementById('viewTitle');
+            const backBtn = document.getElementById('backBtn');
+
+            table.innerHTML = '';
+
+            // Filtering logic for the Search function
+            if (highlight) {
+                data = data.filter(s => s.regNo === highlight);
+                title.innerText = "Search Result";
+                backBtn.style.display = "inline-block";
+            } else {
+                title.innerText = "Registered Students";
+                backBtn.style.display = "none";
+            }
+
+            if (data.length === 0) {
+                table.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px;">No records found.</td></tr>';
+            } else {
+                data.forEach(s => {
+                    table.innerHTML += `
+                        <tr>
+                            <td><strong>${s.name}</strong></td>
+                            <td><code>${s.regNo}</code></td>
+                            <td>
+                                <button class="btn-del" onclick="del('${s.regNo}')">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        async function del(id) {
+            if (confirm("Permanently delete this record?")) {
+                await fetch(`/delete-student/${id}`, { method: 'DELETE' });
+                load();
+            }
+        }
+
+        window.onload = load;
+    </script>
+</body>
+</html>

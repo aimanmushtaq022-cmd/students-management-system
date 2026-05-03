@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniPortal - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo"><h2>UniPortal</h2></div>
+        <div class="nav-links">
+            <a href="/">Dashboard</a>
+            <a href="/add.html">Add</a>
+            <a href="/update.html">Update</a>
+            <a href="/view.html">Records</a>
+        </div>
+        <div class="search-box">
+            <input type="text" id="navSearch" placeholder="Search Name or Reg No..." onkeyup="executeSearch()" autocomplete="off">
+            <div id="searchOverlay"></div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Student Management System</h1>
+        <p>A high-performance administrative portal for academic record management.</p>
+    </header>
+
+    <div class="dashboard-grid">
+        <a href="/add.html" class="card">
+            <h3>Add Student</h3>
+            <p>Enroll new students into the system.</p>
+        </a>
+        <a href="/view.html" class="card">
+            <h3>View Records</h3>
+            <p>Access and manage the full database.</p>
+        </a>
+        <a href="/update.html" class="card">
+            <h3>Update Data</h3>
+            <p>Edit existing student profiles.</p>
+        </a>
+    </div>
+
+    <!-- --- Footer Section Added --- -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>UNIPORTAL</h3>
+                <p>The standard in academic record management and administrative efficiency.</p>
+            </div>
+            <div class="footer-info">
+                <p>&copy; 2026 UniPortal System. Built for Performance.</p>
+                <div class="footer-tags">
+                    <span>Secure</span> • <span>Responsive</span> • <span>Centralized</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        async function executeSearch() {
+            const query = document.getElementById('navSearch').value.toLowerCase();
+            const overlay = document.getElementById('searchOverlay');
+            
+            if (!query) {
+                overlay.style.display = 'none';
+                return;
+            }
+
+            try {
+                const res = await fetch('/students');
+                const data = await res.json();
+                
+                const matches = data.filter(s => 
+                    s.name.toLowerCase().includes(query) || 
+                    s.regNo.toLowerCase().includes(query)
+                );
+
+                if (matches.length > 0) {
+                    overlay.style.display = 'block';
+                    overlay.innerHTML = matches.map(s => `
+                        <div class="search-item" onclick="viewStudent('${s.regNo}')">
+                            <strong>${s.name}</strong>
+                            <small>${s.regNo}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    overlay.innerHTML = '<div class="search-item">No matches found</div>';
+                    overlay.style.display = 'block';
+                }
+            } catch (err) {
+                console.error("Search error:", err);
+            }
+        }
+
+        function viewStudent(regNo) {
+            window.location.href = `/view.html?highlight=${regNo}`;
+        }
+
+        document.addEventListener('click', (e) => {
+            const searchBox = document.querySelector('.search-box');
+            if (!searchBox.contains(e.target)) {
+                document.getElementById('searchOverlay').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
